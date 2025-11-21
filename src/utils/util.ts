@@ -1,7 +1,4 @@
 const getImagePrefix = () => {
-    return process.env.NODE_ENV === "production"
-        ? "/E-learning/"
-        : "";
+    return "";   // ALWAYS EMPTY FOR VERCEL
 };
-
 export { getImagePrefix };
