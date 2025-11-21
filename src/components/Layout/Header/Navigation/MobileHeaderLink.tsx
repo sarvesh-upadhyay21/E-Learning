@@ -2,51 +2,83 @@ import { useState } from "react";
 import Link from "next/link";
 import { HeaderItem } from "../../../../types/menu";
 
-const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
+type Props = {
+  item: HeaderItem;
+  onNavigate?: () => void; // callback from Header to close mobile menu
+};
+
+const MobileHeaderLink: React.FC<Props> = ({ item, onNavigate }) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
 
-  const handleToggle = () => {
-    setSubmenuOpen(!submenuOpen);
+  const handleToggle = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    setSubmenuOpen((s) => !s);
   };
 
+  // If the item has submenu, we render a button that toggles it.
+  // If it doesn't, clicking the Link will navigate and we call onNavigate to close the menu.
   return (
     <div className="relative w-full">
-      <Link
-        href={item.href}
-        onClick={item.submenu ? handleToggle : undefined}
-        className="flex items-center justify-between w-full py-2 text-muted focus:outline-none"
-      >
-        {item.label}
-        {item.submenu && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.5em"
-            height="1.5em"
-            viewBox="0 0 24 24"
+      {item.submenu ? (
+        <>
+          <button
+            type="button"
+            onClick={handleToggle}
+            className="flex items-center justify-between w-full py-3 px-2 text-left text-gray-700"
+            aria-expanded={submenuOpen}
+            aria-controls={`${item.label.replace(/\s+/g, "-").toLowerCase()}-submenu`}
           >
-            <path
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-              d="m7 10l5 5l5-5"
-            />
-          </svg>
-        )}
-      </Link>
-      {submenuOpen && item.submenu && (
-        <div className="bg-white p-2 w-full">
-          {item.submenu.map((subItem, index) => (
-            <Link
-              key={index}
-              href={subItem.href}
-              className="block py-2 text-gray-500 hover:bg-gray-200"
+            <span>{item.label}</span>
+            <svg
+              className={`${submenuOpen ? "rotate-180" : ""} transition-transform`}
+              xmlns="http://www.w3.org/2000/svg"
+              width="1.2em"
+              height="1.2em"
+              viewBox="0 0 24 24"
             >
-              {subItem.label}
-            </Link>
-          ))}
-        </div>
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="m7 10l5 5l5-5"
+              />
+            </svg>
+          </button>
+
+          {submenuOpen && (
+            <div
+              id={`${item.label.replace(/\s+/g, "-").toLowerCase()}-submenu`}
+              className="bg-white p-2 w-full"
+            >
+              {item.submenu!.map((subItem, index) => (
+                <Link
+                  key={index}
+                  href={subItem.href}
+                  className="block py-2 px-2 text-gray-600 hover:bg-gray-100 rounded"
+                  onClick={() => {
+                    // close mobile menu after navigation
+                    onNavigate?.();
+                  }}
+                >
+                  {subItem.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <Link
+          href={item.href}
+          className="flex items-center justify-between w-full py-3 px-2 text-gray-700"
+          onClick={() => {
+            // close mobile menu after navigation
+            onNavigate?.();
+          }}
+        >
+          {item.label}
+        </Link>
       )}
     </div>
   );
