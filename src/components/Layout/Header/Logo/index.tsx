@@ -6,13 +6,13 @@ const Logo: React.FC = () => {
   return (
     <Link href="/">
       <Image
-        src= {`${getImagePrefix()}images/logo/logo.svg`}
+        src="/images/logo/logo.svg"
         alt="logo"
         width={160}
         height={50}
-        style={{ width: "auto", height: "auto" }}
         quality={100}
       />
+
     </Link>
   );
 };
